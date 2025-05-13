@@ -38,9 +38,9 @@ trainCuaca <- cbind(scl_cuaca[-nTest,], Probability = prediksi$precipprob[-nTest
 testCuaca  <- cbind(scl_cuaca[nTest,],  Probability = prediksi$precipprob[nTest])
 
 #Pemodelan
-NNCuaca <- neuralnet(Probability ~ temp + tempmax + tempmin + humidity + windspeed + sealevelpressure,
+NNCuaca <- neuralnet(Probability ~ temp + tempmax + tempmin + humidity + windspeed + sealevelpressure + solarradiation,
                       data = trainCuaca,
-                      hidden = c(6, 12, 4, 4,2), 
+                      hidden = c(6, 18, 18, 9, 3), 
                       learningrate = 0.01,
                       act.fct = "logistic", 
                       linear.output = TRUE)
@@ -49,10 +49,10 @@ NNCuaca <- neuralnet(Probability ~ temp + tempmax + tempmin + humidity + windspe
 plot(NNCuaca)
 weights(NNCuaca)
 summary(NNCuaca)
-print(NNCuaca$result.matrix["error",])
+
 
 # Menggunakan model NNCuaca untuk membuat prediksi
-pred <- predict(NNCuaca, testCuaca[, c("temp", "tempmax", "tempmin", "humidity", "windspeed", "sealevelpressure")])
+pred <- predict(NNCuaca, testCuaca[, c("temp", "tempmax", "tempmin", "humidity", "windspeed", "sealevelpressure", "solarradiation" )])
 
 # Hasil prediksi
 predicted_values <- pred
@@ -66,3 +66,4 @@ actual_values <- testCuaca$Probability
 comparison <- data.frame(Actual = actual_values, Predicted = predicted_values)
 print("Perbandingan Nilai Aktual dan Prediksi:")
 print(comparison)
+print(NNCuaca$result.matrix["error",])
