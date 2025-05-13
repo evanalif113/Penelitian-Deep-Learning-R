@@ -50,3 +50,19 @@ plot(NNCuaca)
 weights(NNCuaca)
 summary(NNCuaca)
 print(NNCuaca$result.matrix["error",])
+
+# Menggunakan model NNCuaca untuk membuat prediksi
+pred <- predict(NNCuaca, testCuaca[, c("temp", "tempmax", "tempmin", "humidity", "windspeed", "sealevelpressure")])
+
+# Hasil prediksi
+predicted_values <- pred
+
+# Menampilkan hasil prediksi
+print("Hasil Prediksi:")
+print(predicted_values)
+
+# Jika ingin membandingkan dengan nilai aktual
+actual_values <- testCuaca$Probability
+comparison <- data.frame(Actual = actual_values, Predicted = predicted_values)
+print("Perbandingan Nilai Aktual dan Prediksi:")
+print(comparison)
