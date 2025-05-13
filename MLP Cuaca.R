@@ -1,0 +1,51 @@
+library(neuralnet)
+library(dplyr)
+library(caret)
+library(shiny)
+
+library(readxl)
+X2024 <- read_excel("D:/Data Iklim/2024.xlsx", 
+                    col_types = c("skip", "skip", "numeric", 
+                                  "numeric", "numeric", "skip", "skip", 
+                                  "skip", "numeric", "numeric", "numeric", 
+                                  "numeric", "numeric", "text", "skip", 
+                                  "skip", "numeric", "numeric", "numeric", 
+                                  "numeric", "numeric", "numeric", 
+                                  "numeric", "numeric", "numeric", 
+                                  "numeric", "skip", "skip", "skip", 
+                                  "text", "text", "text", "skip"))
+
+
+prediksi <- X2024
+jumlah_nan <- sum(is.na(prediksi))
+print(paste("Jumlah NaN dalam dataframe:", jumlah_nan))
+prediksi <- na.omit(prediksi)
+prediksi$precipprob <- as.numeric(factor(prediksi$precipprob))
+prediksi$icon <- as.numeric(factor(prediksi$icon))
+prediksi$description <- as.numeric(factor(prediksi$description))
+prediksi$conditions <- as.numeric(factor(prediksi$conditions))
+prediksi <- subset(prediksi, select = -preciptype)
+
+#transformasi_data
+ncol(prediksi)
+scl <- function(x){(x-min(x))/(max(x)-min(x))}
+scl_cuaca <- data.frame(lapply(prediksi[,1:ncol(prediksi)],scl))
+
+#split_data
+set.seed(456)
+nTest <- sample(1:nrow(prediksi), nrow(prediksi)*0.3)
+trainCuaca <- cbind(scl_cuaca[-nTest,], Probability = prediksi$precipprob[-nTest])
+testCuaca  <- cbind(scl_cuaca[nTest,],  Probability = prediksi$precipprob[nTest])
+
+#Pemodelan
+NNcuaca <- neuralnet(Probability ~ temp + dew + humidity + precip,
+                      data = trainCuaca,
+                      hidden = c(5, 5, 5, 5, 5), 
+                      learningrate = 0.01,
+                      act.fct = "logistic", 
+                      linear.output = TRUE)
+
+
+plot(NNCuaca)
+weights(NNCuaca)
+print(NNCuaca$result.matrix["error",])
