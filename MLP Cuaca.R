@@ -38,9 +38,9 @@ trainCuaca <- cbind(scl_cuaca[-nTest,], Probability = prediksi$precipprob[-nTest
 testCuaca  <- cbind(scl_cuaca[nTest,],  Probability = prediksi$precipprob[nTest])
 
 #Pemodelan
-NNcuaca <- neuralnet(Probability ~ temp + dew + humidity + precip,
+NNCuaca <- neuralnet(Probability ~ temp + tempmax + tempmin + humidity + windspeed + sealevelpressure,
                       data = trainCuaca,
-                      hidden = c(5, 5, 5, 5, 5), 
+                      hidden = c(6, 12, 4, 4,2), 
                       learningrate = 0.01,
                       act.fct = "logistic", 
                       linear.output = TRUE)
@@ -48,4 +48,5 @@ NNcuaca <- neuralnet(Probability ~ temp + dew + humidity + precip,
 
 plot(NNCuaca)
 weights(NNCuaca)
+summary(NNCuaca)
 print(NNCuaca$result.matrix["error",])
